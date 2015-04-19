@@ -60,7 +60,6 @@ void Sudoku::GiveQuestion()
         }
     }
 
-            SudokuMember[i][j]=0;
 
     SudokuMember[11][11]=0;
     for(i=0;i<maxsize;i++)
@@ -71,10 +70,20 @@ void Sudoku::GiveQuestion()
         }
         cout<<endl;
     }
+
+
 }
 void Sudoku::ReadIn()
 {
     int i,j;
+    for(i=0;i<sudokusize;i++)
+    {
+        for(j=0;j<sudokusize;j++)
+        {
+            SudokuCompare[i][j];
+        }
+    }
+
     for(i=0;i<sudokusize;i++)
     {
         for(j=0;j<sudokusize;j++)

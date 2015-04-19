@@ -60,6 +60,7 @@ void Sudoku::GiveQuestion()
         }
     }
 
+            SudokuMember[i][j]=0;
 
     SudokuMember[11][11]=0;
     for(i=0;i<maxsize;i++)
@@ -70,20 +71,10 @@ void Sudoku::GiveQuestion()
         }
         cout<<endl;
     }
-
-
 }
 void Sudoku::ReadIn()
 {
     int i,j;
-    for(i=0;i<sudokusize;i++)
-    {
-        for(j=0;j<sudokusize;j++)
-        {
-            SudokuCompare[i][j];
-        }
-    }
-
     for(i=0;i<sudokusize;i++)
     {
         for(j=0;j<sudokusize;j++)
@@ -94,21 +85,33 @@ void Sudoku::ReadIn()
 
 
 }
-
-void Sudoku::Solve()
+void Sudoku::initiall()
 {
-    int i,j,k,z,blockplace,element;
-    const int member=10;
-    const int totall=12;
-    const int blocksize=16;
-    int calculateorigin=0;
-    int calculatecompare=0;
-    int row[totall][member]={0};
-    int column[totall][member]={0};
-    int block[blocksize][member]={0};
-    int fix[totall][totall]={0};
-    int number[totall][totall][member]={0};
-    //先求出哪一個數字為0
+    int i,j,k;
+    for(i=0;i<totall;i++)
+    {
+        for(j=0;j<totall;j++)
+        {
+            for(k=0;k<member;k++)
+            {
+                number[i][j][k]=0;
+            }
+        }
+    }
+}
+void Sudoku::zerocheck()
+{
+    int i,j;
+    int totall;
+    calculateorigin=0;
+    totall=12;
+    for(i=0;i<totall;i++)
+    {
+        for(j=0;j<totall;j++)
+        {
+            fix[i][j]=0;
+        }
+    }
     for(i=0;i<totall;i++)
     {
         for(j=0;j<totall;j++)
@@ -120,7 +123,18 @@ void Sudoku::Solve()
             }
         }
     }
-    //求出橫列的值
+
+}
+void Sudoku::check_row()
+{
+    int i,j,element;
+    for(i=0;i<totall;i++)
+    {
+        for(j=0;j<member;j++)
+        {
+            row[i][j]=0;
+        }
+    }
     for(i=0;i<totall;i++)
     {
        for(element=1;element<10;element++)
@@ -147,7 +161,17 @@ void Sudoku::Solve()
             }
         }
     }
-    //求出每一行的可能值
+}
+void Sudoku::check_column()
+{
+    int i,j,element;
+    for(i=0;i<totall;i++)
+    {
+        for(j=0;j<member;j++)
+        {
+            column[i][j]=0;
+        }
+    }
     for(i=0;i<totall;i++)
     {
        for(element=1;element<10;element++)
@@ -174,7 +198,17 @@ void Sudoku::Solve()
             }
         }
     }
-    //求出一格要有的元素
+}
+void Sudoku::check_block()
+{
+    int i,j,k,z,blockplace,element;
+    for(i=0;i<blocksize;i++)
+    {
+        for(j=0;j<member;j++)
+        {
+            block[i][j]=0;
+        }
+    }
     for(blockplace=0;blockplace<16;blockplace++)
     {
         for(element=1;element<10;element++)
@@ -193,7 +227,7 @@ void Sudoku::Solve()
             }
         }
     }
-    //將一格要有的元素帶入
+    //將一格要totall有的元素帶入
     for(blockplace=0;blockplace<16;blockplace++)
     {
         for(element=1;element<10;element++)
@@ -212,8 +246,47 @@ void Sudoku::Solve()
             }
         }
     }
-    //求出一組解
+}
+void Sudoku::Solve()
+{
+
+
+    int i,j,change,element;
+    change=0;
+    calculateorigin=0;
+    calculatecompare=0;
+
+    int SudokuOrigin[12][12]={
+    {4,2,6,8,7,3,9,5,1,-1,-1,-1},
+    {8,7,3,9,5,1,6,2,4,-1,-1,-1},
+    {9,5,1,6,2,4,8,7,3,-1,-1,-1},
+    {-1,-1,-1,1,3,2,4,8,7,9,5,6},
+    {-1,-1,-1,7,8,5,1,9,6,4,2,3},
+    {-1,-1,-1,4,9,6,2,3,5,8,7,1},
+    {1,3,7,2,4,8,-1,-1,-1,6,9,5},
+    {2,8,4,5,6,9,-1,-1,-1,1,3,7},
+    {6,9,5,3,1,7,-1,-1,-1,2,8,4},
+    {3,1,2,-1,-1,-1,7,4,8,5,6,9},
+    {7,4,8,-1,-1,-1,5,6,9,3,1,2},
+    {5,6,9,-1,-1,-1,3,0,0,0,0,0},
+};
+
     for(i=0;i<totall;i++)
+    {
+        for(j=0;j<totall;j++)
+        {
+            SudokuCompare[i][j]=SudokuOrigin[i][j];
+        }
+    }
+    initiall();
+    zerocheck();
+    cout<<calculateorigin<<endl;
+    check_row();
+    check_column();
+    check_block();
+
+    //求出一組解
+   for(i=0;i<totall;i++)
     {
         for(j=0;j<totall;j++)
         {
@@ -227,36 +300,25 @@ void Sudoku::Solve()
             }
         }
     }
-    if(calculatecompare<calculateorigin)
-    cout<<"0";
-    else if(calculatecompare==calculatecompare)
-    {
-        cout<<"1"<<endl;
-        for(i=0;i<totall;i++)
-        {
-            for(j=0;j<totall;j++)
-            {
-                for(element=1;element<10;element++)
-                {
-                    if(SudokuCompare[i][j]==0&&number[i][j][element]==3)
-                    {
-                        SudokuCompare[i][j]=element;
-                    }
-                }
-            }
-        }
-        for(i=0;i<totall;i++)
-        {
-            for(j=0;j<totall;j++)
-            {
-                cout<<setw(3)<<SudokuCompare[i][j];
-            }
-            cout<<endl;
-        }
-    }
-    else if(calculatecompare>calculateorigin)
-    {
-        cout<<"2"<<endl;
+    cout<<calculatecompare<<endl;
+if(calculateorigin>calculatecompare)
+{
+    change=0;
+}
+else if(calculateorigin==calculatecompare)
+{
+    change=1;
+
+}
+else if(calculateorigin<calculatecompare)
+{
+    change=2;
+    cout<<change<<endl;
+}
+ cout<<change<<endl;
+if(change==1||change==2)
+{
+
 
         for(i=0;i<totall;i++)
         {
@@ -264,22 +326,34 @@ void Sudoku::Solve()
             {
                 for(element=1;element<10;element++)
                 {
-                    if(SudokuCompare[i][j]==0&&number[i][j][element]==3)
+                    if( (number[i][j][element]==3)&&fix[i][j]==1 )
                     {
                         SudokuCompare[i][j]=element;
+                        initiall();
+                        zerocheck();
+                        check_row();
+                        check_column();
+                        check_block();
+                    if(calculateorigin==0)
+                    {
+                        break;
                     }
-                }
-            }
+
+                    }
+                 }
+           }
+
         }
-        for(i=0;i<totall;i++)
-        {
-            for(j=0;j<totall;j++)
-            {
-                cout<<setw(3)<<SudokuCompare[i][j];
-            }
-            cout<<endl;
-        }
+   }
+
+for(i=0;i<totall;i++)
+{
+    for(j=0;j<totall;j++)
+    {
+        cout<<setw(3)<<SudokuCompare[i][j];
 
     }
+    cout<<endl;
+}
 }
 

@@ -4,7 +4,6 @@
 #include<ctime>
 #include"Sudoku.h"
 using namespace std;
-//#include<>
 void Sudoku::GiveQuestion()
 {
     srand(time(0));
@@ -14,17 +13,17 @@ void Sudoku::GiveQuestion()
     int SubstitudeB;
     const int maxsize=12;
     int SudokuOrigin[maxsize][maxsize]={
-    {4,2,6,8,7,3,9,5,1,-1,-1,-1},
-    {8,7,3,9,5,1,6,2,4,-1,-1,-1},
-    {9,5,1,6,2,4,8,7,3,-1,-1,-1},
-    {-1,-1,-1,1,3,2,4,8,7,9,5,6},
-    {-1,-1,-1,7,8,5,1,9,6,4,2,3},
-    {-1,-1,-1,4,9,6,2,3,5,8,7,1},
-    {1,3,7,2,4,8,-1,-1,-1,6,9,5},
-    {2,8,4,5,6,9,-1,-1,-1,1,3,7},
-    {6,9,5,3,1,7,-1,-1,-1,2,8,4},
-    {3,1,2,-1,-1,-1,7,4,8,5,6,9},
-    {7,4,8,-1,-1,-1,5,6,9,3,1,2},
+    {4,2,6,8,7,0,0,0,1,-1,-1,-1},
+    {8,7,3,9,5,1,6,0,0,-1,-1,-1},
+    {9,5,1,0,2,0,8,7,0,-1,-1,-1},
+    {-1,-1,-1,1,3,2,0,8,7,9,0,6},
+    {-1,-1,-1,0,0,5,1,9,0,4,0,3},
+    {-1,-1,-1,4,9,0,0,3,5,8,7,1},
+    {1,0,0,2,4,0,-1,-1,-1,6,9,5},
+    {2,8,4,5,0,0,-1,-1,-1,0,0,7},
+    {0,0,5,3,1,7,-1,-1,-1,0,0,4},
+    {0,1,0,-1,-1,-1,7,0,0,5,6,9},
+    {0,4,8,-1,-1,-1,0,6,9,3,1,2},
     {5,6,9,-1,-1,-1,3,1,2,7,4,8},
 };
     int SudokuMember[maxsize][maxsize];
@@ -59,8 +58,6 @@ void Sudoku::GiveQuestion()
             }
         }
     }
-
-            SudokuMember[i][j]=0;
 
     SudokuMember[11][11]=0;
     for(i=0;i<maxsize;i++)
@@ -211,11 +208,11 @@ void Sudoku::check_block()
     }
     for(blockplace=0;blockplace<16;blockplace++)
     {
-        for(element=1;element<10;element++)
+        for(i=0;i<totall;i++)
         {
-            for(i=0;i<totall;i++)
+            for(j=0;j<totall;j++)
             {
-                for(j=0;j<totall;j++)
+                for(element=1;element<10;element++)
                 {
                     k=i/3;
                     z=j/3;
@@ -238,7 +235,7 @@ void Sudoku::check_block()
                 {
                     k=i/3;
                     z=j/3;
-                    if( ( (k*4+z) ==blockplace)&&(block[blockplace][element])==0 )
+                    if( ( (k*4+z) ==blockplace)&&(block[blockplace][element]==0) )
                     {
                        number[i][j][element]++;
                     }
@@ -247,24 +244,35 @@ void Sudoku::check_block()
         }
     }
 }
+void Sudoku::initiall_m()
+{
+    int i,j;
+    for(i=0;i<totall;i++)
+    {
+        for(j=0;j<totall;j++)
+        {
+            match[i][j]=0;
+
+        }
+    }
+}
 void Sudoku::Solve()
 {
 
 
-    int i,j,change,element;
-    change=0;
+    int i,j,element,z;
+    z=0;
     calculateorigin=0;
     calculatecompare=0;
-
-    initiall();
-    zerocheck();
-    cout<<calculateorigin<<endl;
-    check_row();
-    check_column();
-    check_block();
-
-    //求出一組解
-   for(i=0;i<totall;i++)
+    while(1)
+    {
+        zerocheck();
+        initiall();
+        check_row();
+        check_column();
+        check_block();
+        initiall_m();
+    for(i=0;i<totall;i++)
     {
         for(j=0;j<totall;j++)
         {
@@ -272,66 +280,135 @@ void Sudoku::Solve()
             {
                 if(number[i][j][element]==3)
                 {
-                    calculatecompare++;
+                    match[i][j]++;
                 }
-
             }
         }
     }
-    cout<<calculatecompare<<endl;
-if(calculateorigin>calculatecompare)
-{
-    change=0;
-}
-else if(calculateorigin==calculatecompare)
-{
-    change=1;
+    for(i=0;i<totall;i++)
+    {
+        for(j=0;j<totall;j++)
+        {
+            for(element=1;element<10;element++)
+            {
+                if( (match[i][j]==1)&&(number[i][j][element]==3)&&fix[i][j]==1 )
+                {
+                    SudokuCompare[i][j]=element;
+                }
+                    
+            }
+        }
 
-}
-else if(calculateorigin<calculatecompare)
-{
-    change=2;
-    cout<<change<<endl;
-}
- cout<<change<<endl;
-if(change==1||change==2)
-{
+    }
 
 
+    if(calculateorigin==0)
+    {
+        cout<<"1"<<endl;
+        break;
+    }
+
+    if(z!=0&&calculateorigin>=calculatecompare)
+    {
+        break;
+    }
+    z++;
+    calculatecompare=calculateorigin;
+    }
+
+    zerocheck();
+    initiall();
+    check_row();
+    check_column();
+    check_block();
+    initiall_m();
+    for(i=0;i<totall;i++)
+    {
+        for(j=0;j<totall;j++)
+        {
+            for(element=1;element<10;element++)
+            {
+                if(number[i][j][element]==3)
+                {
+                    match[i][j]++;
+                }
+            }
+        }
+    }
+    for(i=0;i<totall;i++)
+    {
+        for(j=0;j<totall;j++)
+        {
+            if(fix[i][j]==1&&(match[i][j]>1))
+            {
+                z=1;
+                break;
+            }
+            else if(fix[i][j]==1&&(match[i][j]==0))
+            {
+                z=0;
+                break;
+            }
+        }
+    }
+    if(z==0)
+    {
+        cout<<0<<endl;
+    }
+    else if(z==1)
+    {
+        cout<<"2"<<endl;
+    }
+    if(z==1)
+    {
         for(i=0;i<totall;i++)
         {
+
             for(j=0;j<totall;j++)
             {
+
                 for(element=1;element<10;element++)
                 {
                     if( (number[i][j][element]==3)&&fix[i][j]==1 )
                     {
                         SudokuCompare[i][j]=element;
                         initiall();
-                        zerocheck();
                         check_row();
                         check_column();
                         check_block();
-                    if(calculateorigin==0)
-                    {
-                        break;
                     }
-
-                    }
-                 }
+                   
+                }
            }
 
         }
-   }
+        for(i=0;i<totall;i++)
+        {
+           for(j=0;j<totall;j++)
+           {
+              cout<<setw(3)<<SudokuCompare[i][j];
 
-for(i=0;i<totall;i++)
-{
-    for(j=0;j<totall;j++)
-    {
-        cout<<setw(3)<<SudokuCompare[i][j];
+           }
+           cout<<endl;
+        }
+
 
     }
-    cout<<endl;
-}
+
+
+
+
+       if(calculateorigin==0)
+       {
+           for(i=0;i<totall;i++)
+           {
+               for(j=0;j<totall;j++)
+               {
+                   cout<<setw(3)<<SudokuCompare[i][j];
+               }
+               cout<<endl;
+           }
+      }
+
 }
 
